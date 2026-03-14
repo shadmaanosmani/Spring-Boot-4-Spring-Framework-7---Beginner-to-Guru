@@ -5,19 +5,12 @@ import org.springframework.stereotype.Controller;
 import guru.springframework.spring_di.service.GreetingService;
 
 @Controller
-public class MyController {
+public class PropertyInjectedController {
 
-	private final GreetingService greetingService;
-
-	public MyController(GreetingService greetingService) {
-
-		this.greetingService = greetingService;
-
-	}
+	GreetingService greetingService;
 
 	public String sayHello() {
 
-		System.out.println("I'm in the controller");
 		return greetingService.getGreeting();
 
 	}
