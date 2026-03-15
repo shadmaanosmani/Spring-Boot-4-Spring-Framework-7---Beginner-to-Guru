@@ -3,15 +3,16 @@ package guru.springframework.spring_di.controller;
 import org.springframework.stereotype.Controller;
 
 import guru.springframework.spring_di.service.GreetingService;
+import guru.springframework.spring_di.service.impl.GreetingServiceImpl;
 
 @Controller
 public class MyController {
 
 	private final GreetingService greetingService;
 
-	public MyController(GreetingService greetingService) {
+	public MyController() {
 
-		this.greetingService = greetingService;
+		this.greetingService = new GreetingServiceImpl();
 
 	}
 
