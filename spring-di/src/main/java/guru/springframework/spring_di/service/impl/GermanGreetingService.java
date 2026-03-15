@@ -5,14 +5,14 @@ import org.springframework.stereotype.Service;
 
 import guru.springframework.spring_di.service.GreetingService;
 
-@Profile({ "EN", "default" })
+@Profile("DE")
 @Service("i18NService")
-public class EnglishGreetingService implements GreetingService {
+public class GermanGreetingService implements GreetingService {
 
 	@Override
 	public String getGreeting() {
 
-		return "Hello World - EN";
+		return "Hallo Welt - DE";
 
 	}
 
