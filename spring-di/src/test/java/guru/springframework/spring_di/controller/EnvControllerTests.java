@@ -3,19 +3,17 @@ package guru.springframework.spring_di.controller;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 
-@ActiveProfiles({ "EN", "dev" })
 @SpringBootTest
-class Myi18NControllerTestsEN {
+class EnvControllerTests {
 
 	@Autowired
-	Myi18NController myi18nController;
+	EnvController envController;
 
 	@Test
-	void sayHello() {
+	void getEnv() {
 
-		System.out.println(myi18nController.sayHello());
+		System.out.println(envController.getEnv());
 
 	}
 

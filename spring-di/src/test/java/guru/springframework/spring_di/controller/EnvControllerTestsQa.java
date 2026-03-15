@@ -5,17 +5,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-@ActiveProfiles({ "EN", "dev" })
+@ActiveProfiles({ "qa", "EN" })
 @SpringBootTest
-class Myi18NControllerTestsEN {
+class EnvControllerTestsQa {
 
 	@Autowired
-	Myi18NController myi18nController;
+	EnvController envController;
 
 	@Test
-	void sayHello() {
+	void getEnv() {
 
-		System.out.println(myi18nController.sayHello());
+		System.out.println(envController.getEnv());
 
 	}
 
