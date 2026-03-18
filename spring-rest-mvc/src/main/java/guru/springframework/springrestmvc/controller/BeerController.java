@@ -23,13 +23,17 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/beer")
+@RequestMapping(BeerController.BEER_PATH)
 @RequiredArgsConstructor
 public class BeerController {
+	
+	public static final String BEER_PATH = "/api/v1/beer";
+	public static final String ID = "/{id}";
+	public static final String BEER_PATH_WITH_ID = BEER_PATH + "/" + ID;
 
 	private final BeerService beerService;
 	
-	@PatchMapping("/{id}")
+	@PatchMapping(ID)
 	public ResponseEntity<Beer> patchById(@PathVariable("id") UUID beerId, @RequestBody Beer beer) {
 			
 		beerService.patchById(beerId, beer);
@@ -37,7 +41,7 @@ public class BeerController {
 		
 	}
 	
-	@DeleteMapping("/{id}")
+	@DeleteMapping(ID)
 	public ResponseEntity<Beer> deleteById(@PathVariable("id") UUID beerId) {
 		
 		beerService.deleteById(beerId);
@@ -54,7 +58,7 @@ public class BeerController {
 
 	}
 
-	@PutMapping("/{id}")
+	@PutMapping(ID)
 	public ResponseEntity<Beer> updateById(@PathVariable("id") UUID beerId, @RequestBody Beer beer) {
 
 		beerService.updateById(beerId, beer);
@@ -70,7 +74,7 @@ public class BeerController {
 
 	}
 
-	@GetMapping("/{id}")
+	@GetMapping(ID)
 	public Beer getBeerById(@PathVariable("id") UUID beerId) {
 
 		log.debug("getBeerById in controller was called");

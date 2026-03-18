@@ -24,12 +24,16 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/customer")
+@RequestMapping(CustomerController.CUSTOMER_PATH)
 public class CustomerController {
+	
+	public static final String CUSTOMER_PATH = "/api/v1/customer";
+	public static final String ID = "/{id}";
+	public static final String CUSTOMER_PATH_WITH_ID = CUSTOMER_PATH + "/" + ID;
 
 	private final CustomerService customerService;
 
-	@PatchMapping("/{id}")
+	@PatchMapping(ID)
 	public ResponseEntity<Customer> patchById(@PathVariable("id") UUID customerId, @RequestBody Customer customer) {
 
 		customerService.patchCustomer(customerId, customer);
@@ -37,7 +41,7 @@ public class CustomerController {
 
 	}
 	
-	@DeleteMapping("/{id}")
+	@DeleteMapping(ID)
 	public ResponseEntity<Customer> deleteById(@PathVariable("id") UUID customerId) {
 		
 		customerService.deleteById(customerId);
@@ -45,7 +49,7 @@ public class CustomerController {
 		
 	}
 	
-	@PutMapping("/{id}")
+	@PutMapping(ID)
 	public ResponseEntity<Customer> updateCustomer(@PathVariable("id") UUID customerId,
 			@RequestBody Customer customer) {
 
@@ -61,7 +65,7 @@ public class CustomerController {
 
 	}
 
-	@GetMapping("/{id}")
+	@GetMapping(ID)
 	public Customer getCustomerById(@PathVariable("id") UUID customerId) {
 
 		return customerService.getCustomerById(customerId);
