@@ -29,7 +29,8 @@ public class CustomerController {
 	
 	public static final String CUSTOMER_PATH = "/api/v1/customer";
 	public static final String ID = "/{id}";
-	public static final String CUSTOMER_PATH_WITH_ID = CUSTOMER_PATH + "/" + ID;
+	public static final String DELIMITER = "/";
+	public static final String CUSTOMER_PATH_WITH_ID = CUSTOMER_PATH + DELIMITER + ID;
 
 	private final CustomerService customerService;
 
@@ -76,7 +77,7 @@ public class CustomerController {
 	public ResponseEntity<Customer> handlePost(@RequestBody Customer customer) throws URISyntaxException {
 
 		Customer savedCustomer = customerService.saveNewCustomer(customer);
-		return ResponseEntity.created(new URI("/api/v1/customer/" + savedCustomer.getId())).build();
+		return ResponseEntity.created(new URI(CUSTOMER_PATH + DELIMITER + savedCustomer.getId())).build();
 
 	}
 

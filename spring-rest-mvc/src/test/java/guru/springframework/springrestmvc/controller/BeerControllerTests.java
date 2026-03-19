@@ -1,7 +1,11 @@
 package guru.springframework.springrestmvc.controller;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.assertj.core.api.AssertionsForClassTypes;
@@ -55,6 +59,18 @@ class BeerControllerTests {
 
 		this.beerServiceImpl = new BeerServiceImpl();
 
+	}
+	
+	@Test
+	void getBeerByIdNotFound() throws Exception {
+		
+		BDDMockito.given(beerService.getBeerById(ArgumentMatchers.any(UUID.class)))
+				  .willReturn(Optional.empty());
+		
+		mockMvc.perform(get(BeerController.BEER_PATH_WITH_ID, UUID.randomUUID())
+					   .accept(MediaType.APPLICATION_JSON))
+		.andExpect(status().isNotFound());
+		
 	}
 	
 	@Test
@@ -145,7 +161,7 @@ class BeerControllerTests {
 		
 //		BDDMockito.given(beerService.getBeerById(ArgumentMatchers.any(UUID.class))).willReturn(testBeer);
 		BDDMockito.given(beerService.getBeerById(testBeer.getId()))
-				  .willReturn(testBeer);
+				  .willReturn(Optional.ofNullable(testBeer));
 
 		mockMvc.perform(MockMvcRequestBuilders.get(BeerController.BEER_PATH + "/" + testBeer.getId())
 									  		  .accept(MediaType.APPLICATION_JSON))

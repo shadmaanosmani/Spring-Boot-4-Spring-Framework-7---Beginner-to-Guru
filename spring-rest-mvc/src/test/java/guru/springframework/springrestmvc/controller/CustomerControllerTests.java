@@ -1,5 +1,8 @@
 package guru.springframework.springrestmvc.controller;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -23,6 +26,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import guru.springframework.springrestmvc.exception.NotFoundException;
 import guru.springframework.springrestmvc.model.Customer;
 import guru.springframework.springrestmvc.service.CustomerService;
 import guru.springframework.springrestmvc.service.impl.CustomerServiceImpl;
@@ -54,6 +58,18 @@ class CustomerControllerTests {
 	void setUp() {
 		
 		this.customerServiceImpl = new CustomerServiceImpl();
+		
+	}
+	
+	@Test
+	void getByIdNotFound() throws Exception {
+		
+		BDDMockito.given(customerService.getCustomerById(ArgumentMatchers.any(UUID.class)))
+				  .willThrow(NotFoundException.class);
+		
+		mockMvc.perform(get(CustomerController.CUSTOMER_PATH_WITH_ID, UUID.randomUUID())
+					   .accept(MediaType.APPLICATION_JSON))
+			   .andExpect(status().isNotFound());
 		
 	}
 	

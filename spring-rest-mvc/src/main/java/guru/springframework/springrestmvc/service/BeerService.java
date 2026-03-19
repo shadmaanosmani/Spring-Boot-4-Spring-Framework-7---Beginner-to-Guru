@@ -1,6 +1,7 @@
 package guru.springframework.springrestmvc.service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import guru.springframework.springrestmvc.model.Beer;
@@ -9,7 +10,7 @@ public interface BeerService {
 
 	List<Beer> listBeers();
 
-	Beer getBeerById(UUID beeriId);
+	Optional<Beer> getBeerById(UUID beeriId);
 
 	Beer saveNewBeer(Beer beer);
 

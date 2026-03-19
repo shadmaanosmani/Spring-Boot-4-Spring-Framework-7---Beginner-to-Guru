@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import guru.springframework.springrestmvc.exception.NotFoundException;
 import guru.springframework.springrestmvc.model.Beer;
 import guru.springframework.springrestmvc.service.BeerService;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +31,8 @@ public class BeerController {
 	
 	public static final String BEER_PATH = "/api/v1/beer";
 	public static final String ID = "/{id}";
-	public static final String BEER_PATH_WITH_ID = BEER_PATH + "/" + ID;
+	public static final String DELIMITER = "/";
+	public static final String BEER_PATH_WITH_ID = BEER_PATH + DELIMITER + ID;
 
 	private final BeerService beerService;
 	
@@ -53,8 +56,7 @@ public class BeerController {
 	public ResponseEntity<Beer> handlePost(@RequestBody Beer beer) throws URISyntaxException {
 
 		Beer savedBeer = beerService.saveNewBeer(beer);
-
-		return ResponseEntity.created(new URI("/api/v1/beer" + savedBeer.getId())).build();
+		return ResponseEntity.created(new URI(BEER_PATH + DELIMITER + savedBeer.getId())).build();
 
 	}
 
@@ -78,8 +80,15 @@ public class BeerController {
 	public Beer getBeerById(@PathVariable("id") UUID beerId) {
 
 		log.debug("getBeerById in controller was called");
-		return beerService.getBeerById(beerId);
+		return beerService.getBeerById(beerId).orElseThrow(NotFoundException::new);
 
+	}
+	
+	@ExceptionHandler(NotFoundException.class)
+	public ResponseEntity<Void> handleNotFoundException() {
+		
+		return ResponseEntity.notFound().build();
+		
 	}
 
 }
