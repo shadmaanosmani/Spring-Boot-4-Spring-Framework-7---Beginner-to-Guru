@@ -2,23 +2,36 @@ package guru.springframework.springrestmvc.controller;
 
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.WebApplicationContext;
 
 import guru.springframework.springrestmvc.exception.NotFoundException;
 import guru.springframework.springrestmvc.mapper.BeerMapper;
 import guru.springframework.springrestmvc.model.dto.BeerDTO;
 import guru.springframework.springrestmvc.model.entity.Beer;
 import guru.springframework.springrestmvc.repository.BeerRepository;
+import lombok.extern.slf4j.Slf4j;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
+@Slf4j
 @SpringBootTest
 class BeerControllerIntegrationTests {
 
@@ -30,6 +43,40 @@ class BeerControllerIntegrationTests {
 	
 	@Autowired
 	BeerMapper beerMapper;
+	
+	@Autowired
+	WebApplicationContext webApplicationContext;
+	
+	@Autowired
+	ObjectMapper objectMapper;
+
+	MockMvc mockMvc;
+
+	@BeforeEach
+	void setUp() {
+
+		this.mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+
+	}
+	
+	@Test
+	void patchByIdBadName() throws JacksonException, Exception {
+
+		Beer beer = beerRepository.findAll().getFirst();
+		UUID beerId = beer.getId();
+		final String newBeerName = "Updated beer name 321165313335211352111153333116551332115";
+		Map<String, String> request = Map.of("beerName", newBeerName);
+
+		MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.patch(BeerController.BEER_PATH_WITH_ID, beerId)
+																    .contentType(MediaType.APPLICATION_JSON)
+																    .content(objectMapper.writeValueAsString(request))
+																    .accept(MediaType.APPLICATION_JSON))
+									 .andExpect(MockMvcResultMatchers.status().isBadRequest())
+									 .andReturn();
+		
+		log.debug("Response: " + mvcResult.getResponse().getContentAsString());
+
+	}
 	
 	@Test
 	void patchByIdNotFound() {

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,14 +29,14 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping(BeerController.BEER_PATH)
 @RequiredArgsConstructor
 public class BeerController {
-	
+
 	public static final String BEER_PATH = "/api/v1/beer";
 	public static final String ID = "/{id}";
 	public static final String DELIMITER = "/";
 	public static final String BEER_PATH_WITH_ID = BEER_PATH + DELIMITER + ID;
 
 	private final BeerService beerService;
-	
+
 	@PatchMapping(ID)
 	public ResponseEntity<Void> patchById(@PathVariable("id") UUID beerId, @RequestBody BeerDTO beer) {
 
@@ -46,7 +47,7 @@ public class BeerController {
 		return ResponseEntity.noContent().build();
 
 	}
-	
+
 	@DeleteMapping(ID)
 	public ResponseEntity<Void> deleteById(@PathVariable("id") UUID beerId) {
 
@@ -59,7 +60,7 @@ public class BeerController {
 	}
 
 	@PostMapping
-	public ResponseEntity<Void> handlePost(@RequestBody BeerDTO beer) throws URISyntaxException {
+	public ResponseEntity<Void> handlePost(@Validated @RequestBody BeerDTO beer) throws URISyntaxException {
 
 		BeerDTO savedBeer = beerService.saveNewBeer(beer);
 		return ResponseEntity.created(new URI(BEER_PATH + DELIMITER + savedBeer.getId())).build();
@@ -67,7 +68,7 @@ public class BeerController {
 	}
 
 	@PutMapping(ID)
-	public ResponseEntity<Void> updateById(@PathVariable("id") UUID beerId, @RequestBody BeerDTO beer) {
+	public ResponseEntity<Void> updateById(@PathVariable("id") UUID beerId, @Validated @RequestBody BeerDTO beer) {
 
 		if (beerService.updateById(beerId, beer).isEmpty()) {
 			throw new NotFoundException();
@@ -92,12 +93,12 @@ public class BeerController {
 		return beerService.getBeerById(beerId).orElseThrow(NotFoundException::new);
 
 	}
-	
+
 	@ExceptionHandler(NotFoundException.class)
 	public ResponseEntity<Void> handleNotFoundException() {
-		
+
 		return ResponseEntity.notFound().build();
-		
+
 	}
 
 }

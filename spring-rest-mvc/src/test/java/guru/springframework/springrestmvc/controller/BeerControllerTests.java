@@ -24,15 +24,18 @@ import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import guru.springframework.springrestmvc.model.dto.BeerDTO;
 import guru.springframework.springrestmvc.service.BeerService;
 import guru.springframework.springrestmvc.service.impl.BeerServiceMapImpl;
+import lombok.extern.slf4j.Slf4j;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 
+@Slf4j
 @WebMvcTest(BeerController.class)
 @ExtendWith(MockitoExtension.class)
 class BeerControllerTests {
@@ -59,6 +62,52 @@ class BeerControllerTests {
 
 		this.beerServiceImpl = new BeerServiceMapImpl();
 
+	}
+	
+	@Test
+	void updateBeerNullName() throws JacksonException, Exception {
+		
+		BeerDTO savedBeer = beerServiceImpl.listBeers().getFirst();
+		
+		BeerDTO request = BeerDTO.builder()
+								 .beerName("")
+								 .beerStyle(savedBeer.getBeerStyle())
+								 .upc(savedBeer.getUpc())
+								 .quantityOnHand(savedBeer.getQuantityOnHand())
+								 .price(null)
+								 .build();
+		
+		BDDMockito.given(beerService.updateById(ArgumentMatchers.any(), ArgumentMatchers.any()))
+				  .willReturn(Optional.ofNullable(savedBeer));
+		
+		MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.put(BeerController.BEER_PATH_WITH_ID, savedBeer.getId())
+																    .contentType(MediaType.APPLICATION_JSON)
+																    .content(objectMapper.writeValueAsString(request))
+																    .accept(MediaType.APPLICATION_JSON))
+						 			 .andExpect(MockMvcResultMatchers.status().isBadRequest())
+						 			 .andReturn();
+		
+		log.debug("Response: " + mvcResult.getResponse().getContentAsString());
+		
+	}
+	
+	@Test
+	void saveNewBeerNullName() throws JacksonException, Exception {
+		
+		BeerDTO beerDTO = BeerDTO.builder().build();
+		
+		BDDMockito.given(beerService.saveNewBeer(ArgumentMatchers.any()))
+				  .willReturn(beerServiceImpl.listBeers().getFirst());
+		
+		MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post(BeerController.BEER_PATH)
+																    .contentType(MediaType.APPLICATION_JSON)
+																    .content(objectMapper.writeValueAsString(beerDTO))
+																    .accept(MediaType.APPLICATION_JSON))
+						 			 .andExpect(MockMvcResultMatchers.status().isBadRequest())
+						 			 .andReturn();
+		
+		log.debug("Response: " + mvcResult.getResponse().getContentAsString());
+		
 	}
 	
 	@Test
