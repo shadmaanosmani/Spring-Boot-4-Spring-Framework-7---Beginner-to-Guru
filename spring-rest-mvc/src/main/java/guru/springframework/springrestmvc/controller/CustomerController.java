@@ -16,7 +16,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import guru.springframework.springrestmvc.model.Customer;
+import guru.springframework.springrestmvc.exception.NotFoundException;
+import guru.springframework.springrestmvc.model.dto.CustomerDTO;
 import guru.springframework.springrestmvc.service.CustomerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,48 +36,57 @@ public class CustomerController {
 	private final CustomerService customerService;
 
 	@PatchMapping(ID)
-	public ResponseEntity<Customer> patchById(@PathVariable("id") UUID customerId, @RequestBody Customer customer) {
+	public ResponseEntity<Void> patchById(@PathVariable("id") UUID customerId, @RequestBody CustomerDTO customer) {
 
-		customerService.patchCustomer(customerId, customer);
+		if (!customerService.patchCustomer(customerId, customer)) {
+			throw new NotFoundException();
+		}
+
 		return ResponseEntity.noContent().build();
 
 	}
 	
 	@DeleteMapping(ID)
-	public ResponseEntity<Customer> deleteById(@PathVariable("id") UUID customerId) {
-		
-		customerService.deleteById(customerId);
+	public ResponseEntity<Void> deleteById(@PathVariable("id") UUID customerId) {
+
+		if (!customerService.deleteById(customerId)) {
+			throw new NotFoundException();
+		}
+
 		return ResponseEntity.noContent().build();
-		
+
 	}
 	
 	@PutMapping(ID)
-	public ResponseEntity<Customer> updateCustomer(@PathVariable("id") UUID customerId,
-			@RequestBody Customer customer) {
+	public ResponseEntity<Void> updateCustomer(@PathVariable("id") UUID customerId,
+			@RequestBody CustomerDTO customer) {
 
-		customerService.updateCustomer(customerId, customer);
+		if (!customerService.updateCustomer(customerId, customer)) {
+			throw new NotFoundException();
+		}
+
 		return ResponseEntity.noContent().build();
 
 	}
 	
 	@GetMapping
-	public List<Customer> listCustomers() {
+	public List<CustomerDTO> listCustomers() {
 
 		return customerService.listCustomers();
 
 	}
 
 	@GetMapping(ID)
-	public Customer getCustomerById(@PathVariable("id") UUID customerId) {
+	public CustomerDTO getCustomerById(@PathVariable("id") UUID customerId) {
 
-		return customerService.getCustomerById(customerId);
+		return customerService.getCustomerById(customerId).orElseThrow(NotFoundException::new);
 
 	}
 
 	@PostMapping
-	public ResponseEntity<Customer> handlePost(@RequestBody Customer customer) throws URISyntaxException {
+	public ResponseEntity<Void> handlePost(@RequestBody CustomerDTO customer) throws URISyntaxException {
 
-		Customer savedCustomer = customerService.saveNewCustomer(customer);
+		CustomerDTO savedCustomer = customerService.saveNewCustomer(customer);
 		return ResponseEntity.created(new URI(CUSTOMER_PATH + DELIMITER + savedCustomer.getId())).build();
 
 	}

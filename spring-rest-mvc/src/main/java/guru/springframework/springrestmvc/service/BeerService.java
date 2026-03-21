@@ -4,20 +4,20 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import guru.springframework.springrestmvc.model.Beer;
+import guru.springframework.springrestmvc.model.dto.BeerDTO;
 
 public interface BeerService {
 
-	List<Beer> listBeers();
+	List<BeerDTO> listBeers();
 
-	Optional<Beer> getBeerById(UUID beeriId);
+	Optional<BeerDTO> getBeerById(UUID beeriId);
 
-	Beer saveNewBeer(Beer beer);
+	BeerDTO saveNewBeer(BeerDTO beer);
 
-	void updateById(UUID beerId, Beer beer);
+	Optional<BeerDTO> updateById(UUID beerId, BeerDTO beer);
 
-	void deleteById(UUID beerId);
+	boolean deleteById(UUID beerId);
 
-	void patchById(UUID beerId, Beer beer);
+	boolean patchById(UUID beerId, BeerDTO beer);
 
 }

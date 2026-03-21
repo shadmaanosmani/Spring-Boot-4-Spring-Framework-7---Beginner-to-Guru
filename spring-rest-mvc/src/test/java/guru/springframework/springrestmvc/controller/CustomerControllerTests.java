@@ -5,6 +5,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.assertj.core.api.AssertionsForClassTypes;
@@ -27,9 +28,9 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import guru.springframework.springrestmvc.exception.NotFoundException;
-import guru.springframework.springrestmvc.model.Customer;
+import guru.springframework.springrestmvc.model.dto.CustomerDTO;
 import guru.springframework.springrestmvc.service.CustomerService;
-import guru.springframework.springrestmvc.service.impl.CustomerServiceImpl;
+import guru.springframework.springrestmvc.service.impl.CustomerServiceMapImpl;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 
@@ -50,14 +51,14 @@ class CustomerControllerTests {
 	ArgumentCaptor<UUID> uuidArgumentCaptor;
 	
 	@Captor
-	ArgumentCaptor<Customer> customerArgumentCaptor;
+	ArgumentCaptor<CustomerDTO> customerArgumentCaptor;
 
-	CustomerServiceImpl customerServiceImpl;
+	CustomerServiceMapImpl customerServiceImpl;
 	
 	@BeforeEach
 	void setUp() {
 		
-		this.customerServiceImpl = new CustomerServiceImpl();
+		this.customerServiceImpl = new CustomerServiceMapImpl();
 		
 	}
 	
@@ -75,8 +76,11 @@ class CustomerControllerTests {
 	
 	@Test
 	void patchById() throws JacksonException, Exception {
-		
-		Customer customer = customerServiceImpl.listCustomers().getFirst();
+
+		CustomerDTO customer = customerServiceImpl.listCustomers().getFirst();
+
+		BDDMockito.given(customerService.patchCustomer(ArgumentMatchers.any(), ArgumentMatchers.any()))
+				  .willReturn(true);
 		
 		Map<String, String> request = Map.of("name", "New Customer Name");
 		
@@ -95,7 +99,10 @@ class CustomerControllerTests {
 	@Test
 	void deletedById() throws Exception {
 		
-		Customer customer = customerServiceImpl.listCustomers().get(0);
+		CustomerDTO customer = customerServiceImpl.listCustomers().get(0);
+		
+		BDDMockito.given(customerService.deleteById(ArgumentMatchers.any()))
+				  .willReturn(true);
 		
 		mockMvc.perform(MockMvcRequestBuilders.delete(CustomerController.CUSTOMER_PATH_WITH_ID, customer.getId())
 											  .accept(MediaType.APPLICATION_JSON))
@@ -109,7 +116,10 @@ class CustomerControllerTests {
 	@Test
 	void updateCustomer() throws JacksonException, Exception {
 		
-		Customer customer = customerServiceImpl.listCustomers().getFirst();
+		CustomerDTO customer = customerServiceImpl.listCustomers().getFirst();
+		
+		BDDMockito.given(customerService.updateCustomer(ArgumentMatchers.any(), ArgumentMatchers.any()))
+				  .willReturn(true);
 		
 		mockMvc.perform(MockMvcRequestBuilders.put(CustomerController.CUSTOMER_PATH_WITH_ID, customer.getId())
 											  .contentType(MediaType.APPLICATION_JSON)
@@ -117,16 +127,16 @@ class CustomerControllerTests {
 											  .accept(MediaType.APPLICATION_JSON))
 			   .andExpect(MockMvcResultMatchers.status().isNoContent());
 		
-		Mockito.verify(customerService).updateCustomer(ArgumentMatchers.any(UUID.class), ArgumentMatchers.any(Customer.class));
+		Mockito.verify(customerService).updateCustomer(ArgumentMatchers.any(UUID.class), ArgumentMatchers.any(CustomerDTO.class));
 		
 	}
 	
 	@Test
 	void handlePost() throws JacksonException, Exception {
 		
-		Customer customer = customerServiceImpl.listCustomers().getFirst();
+		CustomerDTO customer = customerServiceImpl.listCustomers().getFirst();
 		
-		BDDMockito.given(customerService.saveNewCustomer(ArgumentMatchers.any(Customer.class)))
+		BDDMockito.given(customerService.saveNewCustomer(ArgumentMatchers.any(CustomerDTO.class)))
 				  .willReturn(customer);
 		
 		mockMvc.perform(MockMvcRequestBuilders.post(CustomerController.CUSTOMER_PATH)
@@ -141,7 +151,7 @@ class CustomerControllerTests {
 	@Test
 	void listCustomers() throws Exception {
 		
-		List<Customer> customers = customerServiceImpl.listCustomers();
+		List<CustomerDTO> customers = customerServiceImpl.listCustomers();
 		
 		BDDMockito.given(customerService.listCustomers())
 				  .willReturn(customers);
@@ -157,10 +167,10 @@ class CustomerControllerTests {
 	@Test
 	void getCustomerById() throws Exception {
 		
-		Customer customer = customerServiceImpl.listCustomers().getFirst();
+		CustomerDTO customer = customerServiceImpl.listCustomers().getFirst();
 		
 		BDDMockito.given(customerService.getCustomerById(customer.getId()))
-				  .willReturn(customer);
+				  .willReturn(Optional.ofNullable(customer));
 		
 		mockMvc.perform(MockMvcRequestBuilders.get(CustomerController.CUSTOMER_PATH_WITH_ID, customer.getId())
 											  .accept(MediaType.APPLICATION_JSON))

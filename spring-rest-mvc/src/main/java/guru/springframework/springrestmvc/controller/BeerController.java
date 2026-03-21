@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import guru.springframework.springrestmvc.exception.NotFoundException;
-import guru.springframework.springrestmvc.model.Beer;
+import guru.springframework.springrestmvc.model.dto.BeerDTO;
 import guru.springframework.springrestmvc.service.BeerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,39 +37,48 @@ public class BeerController {
 	private final BeerService beerService;
 	
 	@PatchMapping(ID)
-	public ResponseEntity<Beer> patchById(@PathVariable("id") UUID beerId, @RequestBody Beer beer) {
-			
-		beerService.patchById(beerId, beer);
+	public ResponseEntity<Void> patchById(@PathVariable("id") UUID beerId, @RequestBody BeerDTO beer) {
+
+		if (!beerService.patchById(beerId, beer)) {
+			throw new NotFoundException();
+		}
+
 		return ResponseEntity.noContent().build();
-		
+
 	}
 	
 	@DeleteMapping(ID)
-	public ResponseEntity<Beer> deleteById(@PathVariable("id") UUID beerId) {
-		
-		beerService.deleteById(beerId);
+	public ResponseEntity<Void> deleteById(@PathVariable("id") UUID beerId) {
+
+		if (!beerService.deleteById(beerId)) {
+			throw new NotFoundException();
+		}
+
 		return ResponseEntity.noContent().build();
-		
+
 	}
 
 	@PostMapping
-	public ResponseEntity<Beer> handlePost(@RequestBody Beer beer) throws URISyntaxException {
+	public ResponseEntity<Void> handlePost(@RequestBody BeerDTO beer) throws URISyntaxException {
 
-		Beer savedBeer = beerService.saveNewBeer(beer);
+		BeerDTO savedBeer = beerService.saveNewBeer(beer);
 		return ResponseEntity.created(new URI(BEER_PATH + DELIMITER + savedBeer.getId())).build();
 
 	}
 
 	@PutMapping(ID)
-	public ResponseEntity<Beer> updateById(@PathVariable("id") UUID beerId, @RequestBody Beer beer) {
+	public ResponseEntity<Void> updateById(@PathVariable("id") UUID beerId, @RequestBody BeerDTO beer) {
 
-		beerService.updateById(beerId, beer);
+		if (beerService.updateById(beerId, beer).isEmpty()) {
+			throw new NotFoundException();
+		}
+
 		return ResponseEntity.noContent().build();
 
 	}
 
 	@GetMapping
-	public List<Beer> listBeers() {
+	public List<BeerDTO> listBeers() {
 
 		log.debug("listBeers in controller was called");
 		return beerService.listBeers();
@@ -77,7 +86,7 @@ public class BeerController {
 	}
 
 	@GetMapping(ID)
-	public Beer getBeerById(@PathVariable("id") UUID beerId) {
+	public BeerDTO getBeerById(@PathVariable("id") UUID beerId) {
 
 		log.debug("getBeerById in controller was called");
 		return beerService.getBeerById(beerId).orElseThrow(NotFoundException::new);

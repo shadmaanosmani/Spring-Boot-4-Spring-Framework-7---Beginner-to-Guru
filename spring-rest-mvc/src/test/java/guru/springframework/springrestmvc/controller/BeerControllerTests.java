@@ -27,9 +27,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import guru.springframework.springrestmvc.model.Beer;
+import guru.springframework.springrestmvc.model.dto.BeerDTO;
 import guru.springframework.springrestmvc.service.BeerService;
-import guru.springframework.springrestmvc.service.impl.BeerServiceImpl;
+import guru.springframework.springrestmvc.service.impl.BeerServiceMapImpl;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 
@@ -50,14 +50,14 @@ class BeerControllerTests {
 	ArgumentCaptor<UUID> uuidArgumentCaptor;
 	
 	@Captor
-	ArgumentCaptor<Beer> beerArgumentCaptor;
+	ArgumentCaptor<BeerDTO> beerArgumentCaptor;
 
-	BeerServiceImpl beerServiceImpl;
+	BeerServiceMapImpl beerServiceImpl;
 
 	@BeforeEach
 	void setUp() {
 
-		this.beerServiceImpl = new BeerServiceImpl();
+		this.beerServiceImpl = new BeerServiceMapImpl();
 
 	}
 	
@@ -76,7 +76,10 @@ class BeerControllerTests {
 	@Test
 	void patchById() throws JacksonException, Exception {
 		
-		Beer beer = beerServiceImpl.listBeers().getFirst();
+		BeerDTO beer = beerServiceImpl.listBeers().getFirst();
+		
+		BDDMockito.given(beerService.patchById(ArgumentMatchers.any(), ArgumentMatchers.any()))
+				  .willReturn(true);
 		
 		Map<String, String> request = Map.of("beerName", "New Beer Name");
 		
@@ -95,7 +98,10 @@ class BeerControllerTests {
 	@Test
 	void deleteById() throws Exception {
 
-		Beer beer = beerServiceImpl.listBeers().getFirst();
+		BeerDTO beer = beerServiceImpl.listBeers().getFirst();
+		
+		BDDMockito.given(beerService.deleteById(ArgumentMatchers.any()))
+				  .willReturn(true);
 
 		mockMvc.perform(MockMvcRequestBuilders.delete(BeerController.BEER_PATH_WITH_ID, beer.getId())
 											  .accept(MediaType.APPLICATION_JSON))
@@ -109,7 +115,10 @@ class BeerControllerTests {
 	@Test
 	void updateById() throws JacksonException, Exception {
 		
-		Beer beer = beerServiceImpl.listBeers().getFirst();
+		BeerDTO beer = beerServiceImpl.listBeers().getFirst();
+		
+		BDDMockito.given(beerService.updateById(ArgumentMatchers.any(UUID.class), ArgumentMatchers.any(BeerDTO.class)))
+				  .willReturn(Optional.ofNullable(beer));
 		
 		mockMvc.perform(MockMvcRequestBuilders.put(BeerController.BEER_PATH_WITH_ID, beer.getId())
 											  .contentType(MediaType.APPLICATION_JSON)
@@ -117,16 +126,16 @@ class BeerControllerTests {
 											  .accept(MediaType.APPLICATION_JSON))
 			   .andExpect(MockMvcResultMatchers.status().isNoContent());
 		
-		Mockito.verify(beerService).updateById(ArgumentMatchers.any(UUID.class), ArgumentMatchers.any(Beer.class));
+		Mockito.verify(beerService).updateById(ArgumentMatchers.any(UUID.class), ArgumentMatchers.any(BeerDTO.class));
 		
 	}
 
 	@Test
 	void handlePost() throws JacksonException, Exception {
 
-		Beer beer = beerServiceImpl.listBeers().getFirst();
+		BeerDTO beer = beerServiceImpl.listBeers().getFirst();
 		
-		BDDMockito.given(beerService.saveNewBeer(ArgumentMatchers.any(Beer.class)))
+		BDDMockito.given(beerService.saveNewBeer(ArgumentMatchers.any(BeerDTO.class)))
 				  .willReturn(beer);
 		
 		mockMvc.perform(MockMvcRequestBuilders.post(BeerController.BEER_PATH)
@@ -141,7 +150,7 @@ class BeerControllerTests {
 	@Test
 	void listBeers() throws Exception {
 		
-		List<Beer> beers = beerServiceImpl.listBeers();
+		List<BeerDTO> beers = beerServiceImpl.listBeers();
 		
 		BDDMockito.given(beerService.listBeers())
 		  		  .willReturn(beers);
@@ -157,7 +166,7 @@ class BeerControllerTests {
 	@Test
 	void getBeerById() throws Exception {
 		
-		Beer testBeer = beerServiceImpl.listBeers().getFirst();
+		BeerDTO testBeer = beerServiceImpl.listBeers().getFirst();
 		
 //		BDDMockito.given(beerService.getBeerById(ArgumentMatchers.any(UUID.class))).willReturn(testBeer);
 		BDDMockito.given(beerService.getBeerById(testBeer.getId()))
