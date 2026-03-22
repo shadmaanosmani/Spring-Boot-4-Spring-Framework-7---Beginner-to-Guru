@@ -4,7 +4,9 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UuidGenerator;
+import org.hibernate.type.SqlTypes;
 
 import guru.springframework.springrestmvc.model.BeerStyle;
 import jakarta.persistence.Column;
@@ -30,9 +32,10 @@ import lombok.Setter;
 public class Beer {
 
 	@Id
+	@JdbcTypeCode(SqlTypes.CHAR)
 	@GeneratedValue(generator = "UUID")
 	@UuidGenerator
-	@Column(length = 36, columnDefinition = "VARCHAR", updatable = false, nullable = false)
+	@Column(length = 36, columnDefinition = "VARCHAR(36)", updatable = false, nullable = false)
 	private UUID id;
 	
 	@NotBlank

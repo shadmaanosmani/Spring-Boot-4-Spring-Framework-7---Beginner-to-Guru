@@ -36,7 +36,7 @@ class BeerRepositoryTests {
 	void saveBeer() {
 		
 		Beer beer = Beer.builder()
-					    .beerName("My Beer 655169191651183168531351351321321321548454584")
+					    .beerName("My Beer")
 					    .beerStyle(BeerStyle.ALE)
 					    .upc("234234234234")
 					    .price(new BigDecimal("11.99"))
