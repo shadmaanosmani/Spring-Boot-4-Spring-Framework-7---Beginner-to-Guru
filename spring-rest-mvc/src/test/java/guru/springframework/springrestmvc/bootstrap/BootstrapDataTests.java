@@ -5,11 +5,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import guru.springframework.springrestmvc.repository.BeerRepository;
 import guru.springframework.springrestmvc.repository.CustomerRepository;
 
 @DataJpaTest
+@ActiveProfiles(profiles = { "default" })
 class BootstrapDataTests {
 	
 	@Autowired

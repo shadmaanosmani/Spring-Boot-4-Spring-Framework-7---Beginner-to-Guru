@@ -6,12 +6,14 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import guru.springframework.springrestmvc.model.BeerStyle;
 import guru.springframework.springrestmvc.model.entity.Beer;
 import jakarta.validation.ConstraintViolationException;
 
 @DataJpaTest
+@ActiveProfiles(profiles = { "default" })
 class BeerRepositoryTests {
 	
 	@Autowired
